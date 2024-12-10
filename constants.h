@@ -1,4 +1,5 @@
 #include <vector>
+#include "types.cpp"
 
 const int block_size = 16; // Bytes.
 
@@ -42,8 +43,8 @@ const unsigned char lin_vec[] = {
     251, 1, 192, 194, 16, 133, 32, 148,
 };
 
-std::vector <std::vector <unsigned char>> iter_C(32, std::vector <unsigned char>(16));
-std::vector <std::vector <unsigned char>> iter_key(10, std::vector <unsigned char>(64));
+Block iter_C[32];
+Block iter_key[10];
 
 const unsigned char LMatrix[16][16] = {
     0xcf, 0x6e, 0xa2, 0x76, 0x72, 0x6c, 0x48, 0x7a, 0xb8, 0x5d, 0x27, 0xbd, 0x10, 0xdd, 0x84, 0x94,
@@ -64,4 +65,5 @@ const unsigned char LMatrix[16][16] = {
     0x6e, 0xa2, 0x76, 0x72, 0x6c, 0x48, 0x7a, 0xb8, 0x5d, 0x27, 0xbd, 0x10, 0xdd, 0x84, 0x94, 0x01,
 };
 
-std::vector <std::vector <std::vector <unsigned char>>> precalc(256, std::vector <std::vector <unsigned char>>(16, std::vector <unsigned char>(16)));
+std::vector <std::vector <std::vector <unsigned char>>> precalc_vector(256, std::vector <std::vector <unsigned char>>(16, std::vector <unsigned char>(16)));
+Block precalc[256][16];
