@@ -1,5 +1,6 @@
 #include "constants.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -45,10 +46,20 @@ static vector <unsigned char> R(vector <unsigned char> &state) {
     return internal;
 }
 
-void L(vector <unsigned char> &input_data) {
+vector <unsigned char> L(vector <unsigned char> &input_data) {
+    vector <unsigned char> res(16);
     for (int i = 0; i < 16; i++) {
-    	input_data = R(input_data);
+        res = X(res, precalc[input_data[i]][15 - i]);
     }
+    return res;
+}
+
+vector <unsigned char> LS(vector <unsigned char> &input_data) {
+    vector <unsigned char> res(16);
+    for (int i = 0; i < 16; i++) {
+        res = X(res, precalc[pi[input_data[i]]][15 - i]);
+    }
+    return res;
 }
 
 static void get_constants() {
@@ -59,16 +70,14 @@ static void get_constants() {
         iter_num[i][0] = i + 1;
     }
     for (int i = 0; i < 32; i++) {
-        iter_C[i] = iter_num[i];
-    	L(iter_C[i]);
+        iter_C[i] = L(iter_num[i]);
     }
 }
 
 vector <vector <unsigned char>> F(vector <unsigned char> &in_key_1, vector <unsigned char> &in_key_2, vector <unsigned char> &iter_const) {
     vector <unsigned char> internal;
     internal = X(in_key_1, iter_const);
-    S(internal);
-    L(internal);
+    internal = LS(internal);
     vector <unsigned char> out_key_1 = X(internal, in_key_2);
     vector <vector <unsigned char>> key = {out_key_1, in_key_1};
     return key;
@@ -101,10 +110,20 @@ vector <unsigned char> Encrypt(vector <unsigned char> &block) {
     vector <unsigned char> out_block = block;
     for (int i = 0; i < 9; i++) {
     	out_block = X(iter_key[i], out_block);
-    	S(out_block);
-    	L(out_block);
+    	out_block = LS(out_block);
     }
     out_block = X(out_block, iter_key[9]);
 
     return out_block;
+}
+
+void fill_precalc() {
+    for (int n = 0; n < 256; n++) {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                precalc[n][i][j] = GField_mul(n, LMatrix[i][j]);
+            }
+            reverse(precalc[n][i].begin(), precalc[n][i].end());
+        }
+    }
 }

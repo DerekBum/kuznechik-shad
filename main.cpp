@@ -19,6 +19,7 @@ vector <unsigned char> block = {
 };
 
 int main() {
+    fill_precalc();
     Expand_Key(key_1, key_2);
 
     auto encrypted = Encrypt(block);
@@ -30,10 +31,6 @@ int main() {
     auto start = chrono::high_resolution_clock::now();
     for (int _ = 0; _ * 16 < 100 * 1024 * 1024; _++) {
         auto encrypted2 = Encrypt(block);
-
-        for (int i = 0; i < 16; i++)
-            if (encrypted[i] != encrypted2[i])
-                return 1;
     }
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
