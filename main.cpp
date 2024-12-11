@@ -1,7 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdint>
 #include <chrono>
-#include "lsx.cpp"
+#include "precalc.hpp"
+#include "types.hpp"
+#include "encrypt.hpp"
 
 using namespace std;
 
@@ -24,25 +27,37 @@ auto block = fromByteArray(block_vector);
 
 int main() {
     fill_precalc();
-    Expand_Key(key_1, key_2);
+    expand_key(key_1, key_2);
 
-    auto encrypted = Encrypt(block);
+    auto encrypted = encrypt(block);
     for (auto el : toByteArray(encrypted).data) {
         cout << hex << int(el) << " ";
     }
     cout << endl;
 
-    auto start = chrono::high_resolution_clock::now();
-    for (int _ = 0; _ * 16 < 100 * 1024 * 1024; _++) {
-        auto encrypted2 = Encrypt(block);
+    long long volume_sum = 0, time_sum = 0;
 
-        if (encrypted != encrypted2) {
-            return 1;
+    for (int t = 0; t < 100; t++) {
+        int vol = 0;
+
+        auto start = chrono::high_resolution_clock::now();
+        for (vol = 0; vol * 16 < 100 * 1024 * 1024; vol++) {
+            auto encrypted2 = encrypt(block);
+
+            if (encrypted != encrypted2) {
+                return 1;
+            }
         }
-    }
-    auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
+        auto stop = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start);
 
-    cout << "Time of encoding: " << dec << duration.count() << "ms" << endl;
+        cout << "Time of encoding: " << dec << duration.count() << "ms" << endl;
+
+        volume_sum += vol * 16;
+        time_sum += duration.count();
+    }
+
+    cout << fixed;
+    cout << "Average speed of encoding: " << setprecision(5) << volume_sum * 1000.0 / 1024.0 / 1024.0 / time_sum << " Mb/s" << endl;
     return 0;
 }
