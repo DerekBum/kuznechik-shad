@@ -5,6 +5,7 @@
 #include "precalc.hpp"
 #include "types.hpp"
 #include "encrypt.hpp"
+#include "decrypt.hpp"
 
 using namespace std;
 
@@ -34,6 +35,10 @@ int main() {
         cout << hex << int(el) << " ";
     }
     cout << endl;
+
+    if (block != decrypt(encrypted)) {
+        return 1;
+    }
 
     long long volume_sum = 0, time_sum = 0;
 
